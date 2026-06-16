@@ -15,6 +15,7 @@ pipeline {
         stage('Tests automatisés') {
             steps {
                 echo 'Exécution des tests unitaires et d’intégration...'
+                sh 'env | grep MAVEN || true'
                 sh 'chmod +x mvnw'
                 sh './mvnw test'
             }
