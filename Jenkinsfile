@@ -17,6 +17,7 @@ pipeline {
         stage('Tests automatisés') {
             steps {
                 echo 'Exécution des tests unitaires et d’intégration...'
+                sh 'chmod +x mvnw'
                 sh './mvnw test'
             }
         }
