@@ -15,16 +15,26 @@ pipeline {
         stage('Tests automatisés') {
             steps {
                 echo 'Exécution des tests unitaires et d’intégration...'
-                sh 'env | grep MAVEN || true'
-                sh 'chmod +x mvnw'
-                sh './mvnw test'
+                sh '''
+                    unset MAVEN_CONFIG
+                    chmod +x mvnw
+                    ./mvnw test
+                '''
             }
         }
 
         stage('Qualité du code - SonarCloud') {
             steps {
                 echo 'Analyse du code avec SonarCloud...'
-                sh './mvnw sonar:sonar -Dsonar.organization=$SONAR_ORG -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN'
+                sh '''
+                    unset MAVEN_CONFIG
+                    chmod +x mvnw
+                    ./mvnw sonar:sonar \
+                    -Dsonar.organization=$SONAR_ORG \
+                    -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                    -Dsonar.host.url=https://sonarcloud.io \
+                    -Dsonar.token=$SONAR_TOKEN
+                '''
             }
         }
     }
