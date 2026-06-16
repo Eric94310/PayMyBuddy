@@ -2,7 +2,6 @@ pipeline {
     agent {
         docker {
             image 'maven:3.9.6-eclipse-temurin-17'
-          
         }
     }
 
@@ -13,7 +12,6 @@ pipeline {
     }
 
     stages {
-
         stage('Tests automatisés') {
             steps {
                 echo 'Exécution des tests unitaires et d’intégration...'
@@ -25,13 +23,7 @@ pipeline {
         stage('Qualité du code - SonarCloud') {
             steps {
                 echo 'Analyse du code avec SonarCloud...'
-                sh """
-                    ./mvnw sonar:sonar \
-                    -Dsonar.organization=${SONAR_ORG} \
-                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                    -Dsonar.host.url=https://sonarcloud.io \
-                    -Dsonar.token=${SONAR_TOKEN}
-                """
+                sh './mvnw sonar:sonar -Dsonar.organization=$SONAR_ORG -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=$SONAR_TOKEN'
             }
         }
     }
