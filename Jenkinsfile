@@ -8,7 +8,7 @@ pipeline {
         SONAR_PROJECT_KEY = 'Eric94310_PayMyBuddy'
 
         DOCKERHUB_USERNAME = 'docker94310'
-        DOCKERHUB_TOKEN = credentials('jenkins-token')
+        DOCKERHUB_TOKEN = credentials('token_jenkins')
 
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/paymybuddy"
         IMAGE_TAG = "${BUILD_NUMBER}"
