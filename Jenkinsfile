@@ -26,6 +26,8 @@ pipeline {
                 }
             }
             steps {
+                echo 'Exécution des tests...'
+
                 sh '''
                     unset MAVEN_CONFIG
                     chmod +x mvnw
@@ -41,9 +43,12 @@ pipeline {
                 }
             }
             steps {
+                echo 'Analyse SonarCloud...'
+
                 sh '''
                     unset MAVEN_CONFIG
                     chmod +x mvnw
+
                     ./mvnw sonar:sonar \
                     -Dsonar.organization=$SONAR_ORG \
                     -Dsonar.projectKey=$SONAR_PROJECT_KEY \
@@ -60,6 +65,8 @@ pipeline {
                 }
             }
             steps {
+                echo 'Compilation et génération du JAR...'
+
                 sh '''
                     unset MAVEN_CONFIG
                     chmod +x mvnw
@@ -76,6 +83,8 @@ pipeline {
                 }
             }
             steps {
+                echo 'Construction de l’image Docker...'
+
                 sh '''
                     docker build \
                     -t $IMAGE_NAME:$IMAGE_TAG \
@@ -92,8 +101,13 @@ pipeline {
                 }
             }
             steps {
+                echo 'Publication de l’image sur DockerHub...'
+
                 sh '''
-                    echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                    echo "$DOCKERHUB_TOKEN" | docker login \
+                    -u "$DOCKERHUB_USERNAME" \
+                    --password-stdin
+
                     docker push $IMAGE_NAME:$IMAGE_TAG
                     docker push $IMAGE_NAME:latest
                 '''
@@ -102,10 +116,12 @@ pipeline {
 
         stage('Staging') {
             agent any
+
             steps {
                 echo 'Déploiement en environnement de staging...'
 
                 sshagent(credentials: ['aws-staging-ssh']) {
+
                     sh '''
                         ssh -o StrictHostKeyChecking=no $STAGING_USER@$STAGING_HOST "
                             docker pull $IMAGE_NAME:latest &&
@@ -114,6 +130,28 @@ pipeline {
                             docker run -d \
                                 --name paymybuddy-staging \
                                 -p 8080:8080 \
+                                $IMAGE_NAME:latest
+                        "
+                    '''
+                }
+            }
+        }
+// j'ai rajouter un stage avec la meme VM pour gagenr du temps afin de simuler l'env de Production , excepté que j'ai bind le port sur 8081
+        stage('Production') {
+            agent any
+
+            steps {
+                echo 'Déploiement en environnement de production...'
+
+                sshagent(credentials: ['aws-staging-ssh']) {
+
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no $STAGING_USER@$STAGING_HOST "
+                            docker stop paymybuddy-prod || true &&
+                            docker rm paymybuddy-prod || true &&
+                            docker run -d \
+                                --name paymybuddy-prod \
+                                -p 8081:8080 \
                                 $IMAGE_NAME:latest
                         "
                     '''
