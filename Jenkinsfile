@@ -13,7 +13,7 @@ pipeline {
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/paymybuddy"
         IMAGE_TAG = "${BUILD_NUMBER}"
 
-        STAGING_HOST = 'IP_PUBLIQUE_OU_DNS_AWS'
+        STAGING_HOST = 'ec2-13-61-3-141.eu-north-1.compute.amazonaws.com'
         STAGING_USER = 'ubuntu'
     }
 
